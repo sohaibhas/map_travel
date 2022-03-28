@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { CssBaseline, Grid } from "@material-ui/core";
+
+import { getPlaceData } from "./api";
 
 import "./components/Header/Header";
 import Header from "./components/Header/Header";
@@ -7,6 +9,25 @@ import List from "./components/LIst/List";
 import Map from "./components/Map/Map";
 
 function App() {
+  const [place, setPlace] = useState([]);
+
+  const [coordiates, setCoordinates] = useState({});
+  const [bounds, setBounds] = useState(null);
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      ({ coords: { latitude, longitude } }) => {
+        setCoordinates({ lat: latitude, lng: longitude });
+      }
+    );
+  }, []);
+
+  useEffect(() => {
+    getPlaceData().then((data) => {
+      console.log(data);
+      setPlace(data);
+    });
+  }, [coordiates, bounds]);
   return (
     <>
       <CssBaseline />
@@ -16,7 +37,11 @@ function App() {
           <List />
         </Grid>
         <Grid item xs={12} md={4}>
-          <Map />
+          <Map
+            setCoordinates={setCoordinates}
+            setBounds={setBounds}
+            coordiates={coordiates}
+          />
         </Grid>
       </Grid>
     </>
